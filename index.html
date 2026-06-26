@@ -706,7 +706,7 @@
         let bombModeActive = false;
         let historyStack = [];
 
-        // Swipe / drag state (touch & mouse)
+        // Drag / swipe state (touch & mouse)
         let dragStartX = 0;
         let dragStartY = 0;
         let dragStartTime = 0;
@@ -1062,12 +1062,15 @@
         });
 
         // ─── TOUCH & MOUSE DRAG HANDLERS ─────
+        function resetDragState() {
+          isDragging = false;
+          dragHandled = false;
+        }
+
         function getEventXY(e) {
-          // Touch event
           if (e.touches && e.touches.length > 0) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
           }
-          // Mouse event
           if (e.clientX !== undefined) {
             return { x: e.clientX, y: e.clientY };
           }
@@ -1075,7 +1078,10 @@
         }
 
         function handleDragStart(e) {
-          // Ignore if interacting with power-up buttons or cells (except for bomb mode)
+          // Only accept left mouse button (button === 0)
+          if (e.type === "mousedown" && e.button !== 0) return;
+
+          // Ignore if interacting with power-up buttons or cells (except bomb mode)
           if (
             e.target.closest("button") ||
             (e.target.classList.contains("cell") && !bombModeActive)
@@ -1142,27 +1148,22 @@
         boardWrapper.addEventListener("touchend", handleDragEnd, {
           passive: false,
         });
-        boardWrapper.addEventListener(
-          "touchcancel",
-          function (e) {
-            isDragging = false;
-          },
-          { passive: true },
-        );
+        boardWrapper.addEventListener("touchcancel", resetDragState, {
+          passive: true,
+        });
 
         // Mouse events
         boardWrapper.addEventListener("mousedown", handleDragStart);
         window.addEventListener("mousemove", function (e) {
-          // Not strictly needed for detection, but we can prevent default if dragging
           if (isDragging) {
-            e.preventDefault();
+            e.preventDefault(); // prevent text selection during drag
           }
         });
-        window.addEventListener("mouseup", function (e) {
-          if (isDragging) {
-            handleDragEnd(e);
-          }
-        });
+        window.addEventListener("mouseup", handleDragEnd);
+
+        // Safety resets: if the mouse leaves the page or window loses focus, reset drag state
+        document.addEventListener("mouseleave", resetDragState);
+        window.addEventListener("blur", resetDragState);
 
         // Start game
         initGame();
