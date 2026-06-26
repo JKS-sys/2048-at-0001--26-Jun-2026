@@ -706,7 +706,7 @@
         let bombModeActive = false;
         let historyStack = [];
 
-        // Drag / swipe state (touch & mouse)
+        // Drag / swipe state
         let dragStartX = 0;
         let dragStartY = 0;
         let dragStartTime = 0;
@@ -790,6 +790,7 @@
                 if (mergedPositions.some((p) => p.r === r && p.c === c))
                   cell.classList.add("merge-pop");
               }
+              // Bomb click handler – will only fire if no drag occurred
               cell.addEventListener(
                 "click",
                 (function (r, c) {
@@ -980,7 +981,8 @@
         }
 
         function handleCellClickForBomb(r, c) {
-          if (!bombModeActive) return;
+          // Only activate bomb if a drag did NOT happen on this interaction
+          if (!bombModeActive || dragHandled) return;
           if (grid[r][c] === 0) return;
           grid[r][c] = 0;
           bombCount--;
@@ -1078,16 +1080,10 @@
         }
 
         function handleDragStart(e) {
-          // Only accept left mouse button (button === 0)
+          // Only left mouse button
           if (e.type === "mousedown" && e.button !== 0) return;
-
-          // Ignore if interacting with power-up buttons or cells (except bomb mode)
-          if (
-            e.target.closest("button") ||
-            (e.target.classList.contains("cell") && !bombModeActive)
-          ) {
-            return;
-          }
+          // Ignore clicks on power-up buttons
+          if (e.target.closest("button")) return;
           const coords = getEventXY(e);
           if (!coords) return;
           dragStartX = coords.x;
@@ -1156,12 +1152,12 @@
         boardWrapper.addEventListener("mousedown", handleDragStart);
         window.addEventListener("mousemove", function (e) {
           if (isDragging) {
-            e.preventDefault(); // prevent text selection during drag
+            e.preventDefault();
           }
         });
         window.addEventListener("mouseup", handleDragEnd);
 
-        // Safety resets: if the mouse leaves the page or window loses focus, reset drag state
+        // Reset drag if mouse leaves the page or window loses focus
         document.addEventListener("mouseleave", resetDragState);
         window.addEventListener("blur", resetDragState);
 
