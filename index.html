@@ -19,7 +19,7 @@
     </script>
     <!-- End Google Tag Manager -->
 
-    <!-- Google tag (gtag.js) for Google Ads base -->
+    <!-- Google tag (gtag.js) base code -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=AW-16905874905"
@@ -31,24 +31,13 @@
       }
       gtag("js", new Date());
       gtag("config", "AW-16905874905");
-    </script>
 
-    <!-- Event snippet for Page view (5) conversion page -->
-    <script>
-      function gtag_report_conversion(url) {
-        var callback = function () {
-          if (typeof url != "undefined") {
-            window.location = url;
-          }
-        };
-        gtag("event", "conversion", {
-          send_to: "AW-16905874905/FLkOCN_y0MUcENnbrP0-",
-          value: 1.0,
-          currency: "INR",
-          event_callback: callback,
-        });
-        return false;
-      }
+      // 🔥 Fire page‑load conversion immediately (same event you verified)
+      gtag("event", "conversion", {
+        send_to: "AW-16905874905/FLkOCN_y0MUcENnbrP0-",
+        value: 1.0,
+        currency: "INR",
+      });
     </script>
 
     <meta charset="UTF-8" />
@@ -790,7 +779,7 @@
                 if (mergedPositions.some((p) => p.r === r && p.c === c))
                   cell.classList.add("merge-pop");
               }
-              // Bomb click handler – will only fire if no drag occurred
+              // Bomb click handler – only fires if no drag happened
               cell.addEventListener(
                 "click",
                 (function (r, c) {
@@ -981,7 +970,6 @@
         }
 
         function handleCellClickForBomb(r, c) {
-          // Only activate bomb if a drag did NOT happen on this interaction
           if (!bombModeActive || dragHandled) return;
           if (grid[r][c] === 0) return;
           grid[r][c] = 0;
@@ -1032,10 +1020,13 @@
           bombCount = 3;
           shuffleCount = 2;
           updatePowerUpUI();
-          // Fire conversion event
-          if (typeof gtag_report_conversion === "function") {
-            gtag_report_conversion();
-          }
+
+          // 🔥 Fire conversion event on New Game click
+          gtag("event", "conversion", {
+            send_to: "AW-16905874905/FLkOCN_y0MUcENnbrP0-",
+            value: 1.0,
+            currency: "INR",
+          });
         }
         btnNewGame.addEventListener("click", handleNewGame);
         msgBtn.addEventListener("click", handleNewGame);
@@ -1082,7 +1073,7 @@
         function handleDragStart(e) {
           // Only left mouse button
           if (e.type === "mousedown" && e.button !== 0) return;
-          // Ignore clicks on power-up buttons
+          // Ignore clicks on buttons
           if (e.target.closest("button")) return;
           const coords = getEventXY(e);
           if (!coords) return;
@@ -1157,7 +1148,6 @@
         });
         window.addEventListener("mouseup", handleDragEnd);
 
-        // Reset drag if mouse leaves the page or window loses focus
         document.addEventListener("mouseleave", resetDragState);
         window.addEventListener("blur", resetDragState);
 
